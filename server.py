@@ -1,46 +1,53 @@
-#  coding: utf-8 
 import socketserver
-
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-#
-# Furthermore it is derived from the Python documentation examples thus
-# some of the code is Copyright © 2001-2013 Python Software
-# Foundation; All Rights Reserved
-#
-# http://docs.python.org/2/library/socketserver.html
-#
-# run: python freetests.py
-
-# try: curl -v -X GET http://127.0.0.1:8080/
-
+import os
+import mimetypes
 
 class MyWebServer(socketserver.BaseRequestHandler):
-    
+
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall(bytearray("OK",'utf-8'))
+        print("Got a request: %s" % self.data.decode())
+
+        # parse the incoming request to get the resource requested
+        request_lines = self.data.decode().split("\r\n")
+        request_line = request_lines[0].split(" ")
+        method, path, version = request_line
+        print(f'{method}, {path}, {version}')
+
+        # check if the request method is GET
+        if method != "GET":
+            self.send_error(405, "Method Not Allowed")
+            return
+
+        # check if the requested resource exists in the www directory
+        resource_path = "." + path
+        if not os.path.exists(resource_path):
+            self.send_error(404, "Not Found")
+            return
+
+        # check if the requested resource is a file and not a directory
+        if os.path.isfile(resource_path):
+            with open(resource_path, "rb") as file:
+                content = file.read()
+                content_type, _ = mimetypes.guess_type(resource_path)
+                self.send_response(200, "OK", content, content_type)
+        else:
+            self.send_error(404, "Not Found")
+
+    def send_response(self, status_code, status_message, content, content_type):
+        response = f"HTTP/1.1 {status_code} {status_message}\r\n"
+        response += f"Content-Type: {content_type}\r\n"
+        response += f"Content-Length: {len(content)}\r\n"
+        response += "\r\n"
+        response = bytearray(response, "utf-8") + content
+        self.request.sendall(response)
+
+    def send_error(self, status_code, status_message):
+        self.send_response(status_code, status_message, b"", "text/plain")
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
 
     socketserver.TCPServer.allow_reuse_address = True
-    # Create the server, binding to localhost on port 8080
     server = socketserver.TCPServer((HOST, PORT), MyWebServer)
-
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
     server.serve_forever()
