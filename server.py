@@ -26,12 +26,36 @@ import socketserver
 
 # try: curl -v -X GET http://127.0.0.1:8080/
 
-
+import  os
 class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
-        self.data = self.request.recv(1024).strip()
+        self.data = self.request.recv(1024).strip().decode("utf-8").split("\r\n")
         print ("Got a request of: %s\n" % self.data)
+        request_line = self.data[0]
+        method, request_URI, HTTP_version = request_line.split(' ')
+        print ("this is request_line: %s\n" % request_line)
+        print ("this is request_URI: %s\n" % request_URI)
+        URI_split = request_URI.split('/')[1:]
+        if URI_split[-1] == '':
+            URI_split[-1] = 'index.html'
+        file_path = '/'.join(['.','www']+URI_split)
+        if os.path.exists(file_path):
+            res = 'HTTP/1.1 200 OK\r\n'
+            content_type_header = ''
+            if '.html' in URI_split[-1]:
+                content_type_header = 'Content-Type: text/html\r\n'
+            elif '.css' in URI_split[-1]:
+                content_type_header = 'Content-Type: text/css\r\n'
+            with open(file_path,'r') as file:
+                data = '\r\n\r\n'+file.read()
+            self.request.sendall(bytearray(res+content_type_header+data,'utf-8'))
+            return
+        else:
+            # print(f'failed:{file_path}')
+            self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n\r\n404 Not Found",'utf-8'))
+            return
+        print ("this is URI_split: %s\n" % URI_split)
         self.request.sendall(bytearray("OK",'utf-8'))
 
 if __name__ == "__main__":
