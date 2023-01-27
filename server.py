@@ -41,11 +41,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
     
         if splitURI[-1] == '':
             splitURI[-1] = 'index.html'
-        file_path = '/'.join(['.','www']+splitURI)
         if splitURI[-1] == '/':
             splitURI[-1] += 'index.html'
-        file_path = '/'.join(['.','www']+splitURI)
-       
+        file_path = "./www/"+splitURI[-1]
+
         if 'GET' not in method:
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
             return
