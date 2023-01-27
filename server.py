@@ -46,19 +46,24 @@ class MyWebServer(socketserver.BaseRequestHandler):
         file_path = '/'.join(['.','www']+URI_split)
        
         if method != 'GET':
-            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n\r\n405 Method Not Allowed",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
             return
         if HTTP_version != 'HTTP/1.1':
-            self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n\r\n505 HTTP Version Not Supported",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
             return
         if '..' in URI_split:
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
         
-        
-        if not is_safe_URI_split(URI_split):
-            self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n\r\n404 Not Found",'utf-8'))
+        safecheck = []
+        for i in URI_split:
+            if i == '':
+                continue
+            safecheck.append(i)
+        if len(safecheck) != len(URI_split):
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
+       
         if request_URI[-1] != '/' and os.path.isdir(file_path):
             self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {request_URI}/\r\n\r\n",'utf-8'))
         if os.path.exists(file_path):
@@ -96,22 +101,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
         else:
             
             # print(f'failed:{file_path}')
-            self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n\r\n404 Not Found",'utf-8'))
+            self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
         print ("this is URI_split: %s\n" % URI_split)
        # self.request.sendall(bytearray("OK",'utf-8'))
-def is_safe_URI_split(URI_split):
-    virtual_directory = []
-    for directory in URI_split:
-        if directory == '..':
-            if len(virtual_directory) == 0:
-                # out of bounds, unsafe
-                return False
-            else:
-                virtual_directory.pop()
-        else:
-            virtual_directory.append(directory)
-    return True
+
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
 
