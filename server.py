@@ -49,8 +49,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
             return
         if  'HTTP/1.1' not in HTTP_version and 'HTTP/1.0' not in HTTP_version    :
-            self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
-            return
+             self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
+             return
         if '..' in splitURI:
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
@@ -83,18 +83,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 content_type_header = 'Content-Type: image/gif\r\n'
             elif '.jpg' in splitURI[-1]:
                 content_type_header = 'Content-Type: image/jpeg\r\n'
-            elif '.ico' in splitURI[-1]:
-                content_type_header = 'Content-Type: image/x-icon\r\n'
-            elif '.svg' in splitURI[-1]:
-                content_type_header = 'Content-Type: image/svg+xml\r\n'
-            elif '.woff' in splitURI[-1]:
-                content_type_header = 'Content-Type: font/woff\r\n'
-            elif '.woff2' in splitURI[-1]:
-                content_type_header = 'Content-Type: font/woff2\r\n'
-            elif '.ttf' in splitURI[-1]:
-                content_type_header = 'Content-Type: font/ttf\r\n'
-            elif '.eot' in splitURI[-1]:
-                content_type_header = 'Content-Type: font/eot\r\n'
             with open(file_path,'r') as file:
                 data = '\r\n\r\n'+file.read()
                 print(f'success:{file_path}')
