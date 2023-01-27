@@ -38,7 +38,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         print ("this is request_line: %s\n" % request)
         print ("this is request_URI: %s\n" % requestURI)
         splitURI = requestURI.split('/')[1:]
-    
+    #deal with the requestURI
         if splitURI[-1] == '':
             splitURI[-1] += 'index.html'
         if splitURI[-1] == '/':
@@ -60,6 +60,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         
         
         safecheck = []
+
         for i in splitURI:
             # check if there is any illegal character in the URI
             if i == '' or i == '.' or i == '..' or i == ' ' or i == '  ' or i == '   ':
