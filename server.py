@@ -37,31 +37,31 @@ class MyWebServer(socketserver.BaseRequestHandler):
         method, request_URI, HTTP_version = request_line.split(' ')
         print ("this is request_line: %s\n" % request_line)
         print ("this is request_URI: %s\n" % request_URI)
-        URI_split = request_URI.split('/')[1:]
-     
-        if URI_split[-1] == '':
-            URI_split[-1] = 'index.html'
-        file_path = '/'.join(['.','www']+URI_split)
-        if URI_split[-1] == '/':
-            URI_split[-1] += 'index.html'
-        file_path = '/'.join(['.','www']+URI_split)
+        splitURI = request_URI.split('/')[1:]
+    
+        if splitURI[-1] == '':
+            splitURI[-1] = 'index.html'
+        file_path = '/'.join(['.','www']+splitURI)
+        if splitURI[-1] == '/':
+            splitURI[-1] += 'index.html'
+        file_path = '/'.join(['.','www']+splitURI)
        
-        if method != 'GET':
+        if"GET" not in method :
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
             return
-        if HTTP_version != 'HTTP/1.1':
+        if HTTP_version != 'HTTP/1.1' :
             self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
             return
-        if '..' in URI_split:
+        if '..' in splitURI:
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
         
         safecheck = []
-        for i in URI_split:
+        for i in splitURI:
             if i == '':
                 continue
             safecheck.append(i)
-        if len(safecheck) != len(URI_split):
+        if len(safecheck) != len(splitURI):
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
        
@@ -70,29 +70,29 @@ class MyWebServer(socketserver.BaseRequestHandler):
         if os.path.exists(file_path) and os.path.isfile(file_path):
           
             content_type_header = ''
-            if '.html' in URI_split[-1]:
+            if '.html' in splitURI[-1]:
                 content_type_header = 'Content-Type: text/html\r\n'
-            elif '.css' in URI_split[-1]:
+            elif '.css' in splitURI[-1]:
                 content_type_header = 'Content-Type: text/css\r\n'
-            elif '.js' in URI_split[-1]:
+            elif '.js' in splitURI[-1]:
                 content_type_header = 'Content-Type: text/javascript\r\n'
-            elif '.png' in URI_split[-1]:
+            elif '.png' in splitURI[-1]:
                 content_type_header = 'Content-Type: image/png\r\n'
-            elif '.gif' in URI_split[-1]:
+            elif '.gif' in splitURI[-1]:
                 content_type_header = 'Content-Type: image/gif\r\n'
-            elif '.jpg' in URI_split[-1]:
+            elif '.jpg' in splitURI[-1]:
                 content_type_header = 'Content-Type: image/jpeg\r\n'
-            elif '.ico' in URI_split[-1]:
+            elif '.ico' in splitURI[-1]:
                 content_type_header = 'Content-Type: image/x-icon\r\n'
-            elif '.svg' in URI_split[-1]:
+            elif '.svg' in splitURI[-1]:
                 content_type_header = 'Content-Type: image/svg+xml\r\n'
-            elif '.woff' in URI_split[-1]:
+            elif '.woff' in splitURI[-1]:
                 content_type_header = 'Content-Type: font/woff\r\n'
-            elif '.woff2' in URI_split[-1]:
+            elif '.woff2' in splitURI[-1]:
                 content_type_header = 'Content-Type: font/woff2\r\n'
-            elif '.ttf' in URI_split[-1]:
+            elif '.ttf' in splitURI[-1]:
                 content_type_header = 'Content-Type: font/ttf\r\n'
-            elif '.eot' in URI_split[-1]:
+            elif '.eot' in splitURI[-1]:
                 content_type_header = 'Content-Type: font/eot\r\n'
             with open(file_path,'r') as file:
                 data = '\r\n\r\n'+file.read()
@@ -104,7 +104,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # print(f'failed:{file_path}')
             self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
-        print ("this is URI_split: %s\n" % URI_split)
+        print ("this is URI_split: %s\n" % splitURI)
        # self.request.sendall(bytearray("OK",'utf-8'))
 
 if __name__ == "__main__":
