@@ -33,11 +33,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
         self.data = self.request.recv(1024).strip().decode("utf-8").split("\r\n")
         print ("Got a request of: %s\n" % self.data)
         
-        request_line = self.data[0]
-        method, request_URI, HTTP_version = request_line.split(' ')
-        print ("this is request_line: %s\n" % request_line)
-        print ("this is request_URI: %s\n" % request_URI)
-        splitURI = request_URI.split('/')[1:]
+        request = self.data[0]
+        method, requestURI, HTTPversion = request.split(' ')
+        print ("this is request_line: %s\n" % request)
+        print ("this is request_URI: %s\n" % requestURI)
+        splitURI = requestURI.split('/')[1:]
     
         if splitURI[-1] == '':
             splitURI[-1] = 'index.html'
@@ -48,7 +48,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         if 'GET' not in method:
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
             return
-        if  'HTTP/1.1' not in HTTP_version and 'HTTP/1.0' not in HTTP_version    :
+        if  'HTTP/1.1' not in HTTPversion and 'HTTP/1.0' not in HTTPversion    :
              self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
              return
         if '..' in splitURI:
@@ -67,8 +67,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
        
-        if request_URI[-1] != '/' and os.path.isdir(file_path):
-            self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {request_URI}/\r\n\r\n",'utf-8'))
+        if requestURI[-1] != '/' and os.path.isdir(file_path):
+            self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {requestURI}/\r\n\r\n",'utf-8'))
         if os.path.exists(file_path) and os.path.isfile(file_path):
           
             content_type_header = ''
