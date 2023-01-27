@@ -32,7 +32,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip().decode("utf-8").split("\r\n")
         print ("Got a request of: %s\n" % self.data)
-        
         request = self.data[0]
         method, requestURI, HTTPversion = request.split(' ')
         print ("this is request_line: %s\n" % request)
@@ -40,7 +39,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         splitURI = requestURI.split('/')[1:]
     
         if splitURI[-1] == '':
-            splitURI[-1] = 'index.html'
+            splitURI[-1] += 'index.html'
         if splitURI[-1] == '/':
             splitURI[-1] += 'index.html'
         file_path = "./www/"+splitURI[-1]
