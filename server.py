@@ -37,15 +37,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
         print ("this is request_line: %s\n" % request_line)
         print ("this is request_URI: %s\n" % request_URI)
         URI_split = request_URI.split('/')[1:]
-        if(URI_split[-5:] != ".html" and URI_split[-1] != "/" and URI_split[-4:] != ".css"):
-                response = request_URI + " 301 Moved Permanently\r\n"
-                response += "Location: "
-                response += URI_split
-                response += "/\r\n" #add "/"
-                self.request.send(response.encode("utf-8"))
+     
         if(URI_split[-1] == "/"):
                 URI_split += "index.html"
         file_path = '/'.join(['.','www']+URI_split)
+        if not os.path.exists(file_path):
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
 
        
         if method != 'GET':
