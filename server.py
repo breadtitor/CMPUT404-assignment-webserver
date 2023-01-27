@@ -37,9 +37,18 @@ class MyWebServer(socketserver.BaseRequestHandler):
         print ("this is request_line: %s\n" % request_line)
         print ("this is request_URI: %s\n" % request_URI)
         URI_split = request_URI.split('/')[1:]
+        
         if URI_split[-1] == '':
             URI_split[-1] = 'index.html'
         file_path = '/'.join(['.','www']+URI_split)
+        if method != 'GET':
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n\r\n405 Method Not Allowed",'utf-8'))
+            return
+        if '..' in URI_split:
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n404 Not Found",'utf-8'))
+            return
+        if request_URI[-1] != '/' and '.' not in request_URI.split('/')[-1]:
+            self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\n",'utf-8'))
         if os.path.exists(file_path):
             res = 'HTTP/1.1 200 OK\r\n'
             content_type_header = ''
@@ -47,8 +56,29 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 content_type_header = 'Content-Type: text/html\r\n'
             elif '.css' in URI_split[-1]:
                 content_type_header = 'Content-Type: text/css\r\n'
+            elif '.js' in URI_split[-1]:
+                content_type_header = 'Content-Type: text/javascript\r\n'
+            elif '.png' in URI_split[-1]:
+                content_type_header = 'Content-Type: image/png\r\n'
+            elif '.gif' in URI_split[-1]:
+                content_type_header = 'Content-Type: image/gif\r\n'
+            elif '.jpg' in URI_split[-1]:
+                content_type_header = 'Content-Type: image/jpeg\r\n'
+            elif '.ico' in URI_split[-1]:
+                content_type_header = 'Content-Type: image/x-icon\r\n'
+            elif '.svg' in URI_split[-1]:
+                content_type_header = 'Content-Type: image/svg+xml\r\n'
+            elif '.woff' in URI_split[-1]:
+                content_type_header = 'Content-Type: font/woff\r\n'
+            elif '.woff2' in URI_split[-1]:
+                content_type_header = 'Content-Type: font/woff2\r\n'
+            elif '.ttf' in URI_split[-1]:
+                content_type_header = 'Content-Type: font/ttf\r\n'
+            elif '.eot' in URI_split[-1]:
+                content_type_header = 'Content-Type: font/eot\r\n'
             with open(file_path,'r') as file:
                 data = '\r\n\r\n'+file.read()
+                print(f'success:{file_path}')
             self.request.sendall(bytearray(res+content_type_header+data,'utf-8'))
             return
         else:
@@ -56,7 +86,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n\r\n404 Not Found",'utf-8'))
             return
         print ("this is URI_split: %s\n" % URI_split)
-        self.request.sendall(bytearray("OK",'utf-8'))
+       # self.request.sendall(bytearray("OK",'utf-8'))
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
