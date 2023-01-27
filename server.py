@@ -71,7 +71,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {requestURI}/\r\n\r\n",'utf-8'))
         if os.path.exists(file_path) and os.path.isfile(file_path):
           
-            content_type_header = ''
+            content_type_header = 'defaulholder'
             if '.html' in splitURI[-1]:
                 content_type_header = 'Content-Type: text/html\r\n'
             elif '.css' in splitURI[-1]:
