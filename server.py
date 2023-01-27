@@ -25,7 +25,8 @@ import socketserver
 # run: python freetests.py
 
 # try: curl -v -X GET http://127.0.0.1:8080/
-
+def send_response(self, status_code, content_type, content):
+        self.request.sendall(bytearray(f"HTTP/1.1 {status_code}\r\n",'utf-8'))
 import  os
 class MyWebServer(socketserver.BaseRequestHandler):
     
@@ -45,13 +46,15 @@ class MyWebServer(socketserver.BaseRequestHandler):
         file_path = "./www/"+splitURI[-1]
 
         if 'GET' not in method:
-            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
+            send_response(self,405,'text/html','405 Method Not Allowed')
+           
             return
         if  'HTTP/1.1' not in HTTPversion and 'HTTP/1.0' not in HTTPversion    :
-             self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
-             return
+            send_response(self,505,'text/html','505 HTTP Version Not Supported') 
+            return
         if '..' in splitURI:
-            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
+            send_response(self,404,'text/html','404 Not Found')
+           
            
             return
         
@@ -63,11 +66,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 continue
             safecheck.append(i)
         if len(safecheck) != len(splitURI):
-            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
+            send_response(self,404,'text/html','404 Not Found')
             return
        
         if requestURI[-1] != '/' and os.path.isdir(file_path):
-            self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {requestURI}/\r\n\r\n",'utf-8'))
+            send_response(self,301,'text/html','301 Moved Permanently')
+            
         if os.path.exists(file_path) and os.path.isfile(file_path):
           
             content_type_header = 'defaulholder'
@@ -90,7 +94,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             return
         else:
             
-            # print(f'failed:{file_path}')
+            print(f'failed:{file_path}')
             self.request.sendall(bytearray(f"HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
         print ("this is URI_split: %s\n" % splitURI)
