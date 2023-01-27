@@ -53,7 +53,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
         
         if request_URI[-1] != '/' and '.' not in request_URI.split('/')[-1]:
             self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\n",'utf-8'))
-            
+        else
+            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\n",'utf-8'))
         if os.path.exists(file_path):
             res = 'HTTP/1.1 200 OK\r\n'
             content_type_header = ''
