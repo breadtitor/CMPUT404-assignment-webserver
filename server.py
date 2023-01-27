@@ -59,7 +59,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
         
         safecheck = []
         for i in splitURI:
-            if i == '' or i == '.' or i == '..':
+            # check if there is any illegal character in the URI
+            if i == '' or i == '.' or i == '..' or i == ' ':
                 continue
             safecheck.append(i)
         if len(safecheck) != len(splitURI):
