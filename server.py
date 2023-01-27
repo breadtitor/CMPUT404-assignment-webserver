@@ -1,7 +1,7 @@
 #  coding: utf-8 
 import socketserver
 
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos
+# Copyright 2013 Abram Hindle, Eddie Antonio Santos guoqiaoxi
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip().decode("utf-8").split("\r\n")
         print ("Got a request of: %s\n" % self.data)
+        
         request_line = self.data[0]
         method, request_URI, HTTP_version = request_line.split(' ')
         print ("this is request_line: %s\n" % request_line)
@@ -66,8 +67,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
        
         if request_URI[-1] != '/' and os.path.isdir(file_path):
             self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {request_URI}/\r\n\r\n",'utf-8'))
-        if os.path.exists(file_path):
-            res = 'HTTP/1.1 200 OK\r\n'
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+          
             content_type_header = ''
             if '.html' in URI_split[-1]:
                 content_type_header = 'Content-Type: text/html\r\n'
@@ -96,7 +97,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             with open(file_path,'r') as file:
                 data = '\r\n\r\n'+file.read()
                 print(f'success:{file_path}')
-            self.request.sendall(bytearray(res+content_type_header+data,'utf-8'))
+            self.request.sendall(bytearray('HTTP/1.1 200 OK\r\n'+content_type_header+data,'utf-8'))
             return
         else:
             
