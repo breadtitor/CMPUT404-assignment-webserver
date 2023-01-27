@@ -46,15 +46,16 @@ class MyWebServer(socketserver.BaseRequestHandler):
             splitURI[-1] += 'index.html'
         file_path = '/'.join(['.','www']+splitURI)
        
-        if"GET" not in method :
+        if 'GET' not in method:
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
             return
-        if HTTP_version != 'HTTP/1.1' :
+        if  'HTTP/1.1' not in HTTP_version and 'HTTP/1.0' not in HTTP_version    :
             self.request.sendall(bytearray("HTTP/1.1 505 HTTP Version Not Supported\r\n",'utf-8'))
             return
         if '..' in splitURI:
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
             return
+        
         
         safecheck = []
         for i in splitURI:
