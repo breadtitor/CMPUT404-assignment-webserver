@@ -53,13 +53,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
              return
         if '..' in splitURI:
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
+           
             return
         
         
         safecheck = []
         for i in splitURI:
             # check if there is any illegal character in the URI
-            if i == '' or i == '.' or i == '..' or i == ' ':
+            if i == '' or i == '.' or i == '..' or i == ' ' or i == '  ' or i == '   ':
                 continue
             safecheck.append(i)
         if len(safecheck) != len(splitURI):
